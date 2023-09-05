@@ -28,6 +28,10 @@ const SCHEMA: HaFormSchema[] = [
         name: "content",
         selector: { template: {} },
     },
+    {
+        name: "subcontent",
+        selector: { template: {} },
+    },
     ...computeActionsFormSchema(),
 ];
 

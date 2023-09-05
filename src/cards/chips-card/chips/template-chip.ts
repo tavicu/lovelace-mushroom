@@ -30,7 +30,7 @@ import { LovelaceChip, TemplateChipConfig } from "../../../utils/lovelace/chip/t
 import { LovelaceChipEditor } from "../../../utils/lovelace/types";
 import { weatherSVGStyles } from "../../../utils/weather";
 
-const TEMPLATE_KEYS = ["content", "icon", "icon_color", "picture"] as const;
+const TEMPLATE_KEYS = ["content", "subcontent", "icon", "icon_color", "picture"] as const;
 type TemplateKey = (typeof TEMPLATE_KEYS)[number];
 
 @customElement(computeChipComponentName("template"))
@@ -107,6 +107,7 @@ export class TemplateChip extends LitElement implements LovelaceChip {
         const icon = this.getValue("icon");
         const iconColor = this.getValue("icon_color");
         const content = this.getValue("content");
+        const subcontent = this.getValue("subcontent");
         const picture = this.getValue("picture");
 
         const rtl = computeRTL(this.hass);
@@ -121,7 +122,7 @@ export class TemplateChip extends LitElement implements LovelaceChip {
                     hasDoubleClick: hasAction(this._config.double_tap_action),
                 })}
                 .avatar=${picture ? (this.hass as any).hassUrl(picture) : undefined}
-                .avatarOnly=${picture && !content}
+                .avatarOnly=${picture && !content && !subcontent}
             >
                 ${!picture
                     ? weatherSvg
@@ -131,6 +132,8 @@ export class TemplateChip extends LitElement implements LovelaceChip {
                         : nothing
                     : nothing}
                 ${content ? this.renderContent(content) : nothing}
+                ${content && subcontent ? '<br>' : nothing}
+                ${subcontent ? this.renderSubContent(subcontent) : nothing}
             </mushroom-chip>
         `;
     }
@@ -146,6 +149,10 @@ export class TemplateChip extends LitElement implements LovelaceChip {
 
     protected renderContent(content: string): TemplateResult {
         return html`<span>${content}</span>`;
+    }
+
+    protected renderSubContent(subcontent: string): TemplateResult {
+        return html`<small>${subcontent}</small>`;
     }
 
     protected updated(changedProps: PropertyValues): void {
@@ -244,6 +251,9 @@ export class TemplateChip extends LitElement implements LovelaceChip {
             }
             ha-state-icon {
                 color: var(--color);
+            }
+            small {
+                opacity: 0.6;
             }
             ${weatherSVGStyles}
         `;

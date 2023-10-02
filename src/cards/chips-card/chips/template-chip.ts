@@ -10,6 +10,7 @@ import {
 } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { styleMap } from "lit/directives/style-map.js";
+import { classMap } from "lit/directives/class-map.js";
 import {
     actionHandler,
     ActionHandlerEvent,
@@ -30,7 +31,7 @@ import { LovelaceChip, TemplateChipConfig } from "../../../utils/lovelace/chip/t
 import { LovelaceChipEditor } from "../../../utils/lovelace/types";
 import { weatherSVGStyles } from "../../../utils/weather";
 
-const TEMPLATE_KEYS = ["content", "subcontent", "icon", "icon_color", "picture"] as const;
+const TEMPLATE_KEYS = ["primary", "secondary", "icon", "icon_color", "picture"] as const;
 type TemplateKey = (typeof TEMPLATE_KEYS)[number];
 
 @customElement(computeChipComponentName("template"))
@@ -106,8 +107,8 @@ export class TemplateChip extends LitElement implements LovelaceChip {
 
         const icon = this.getValue("icon");
         const iconColor = this.getValue("icon_color");
-        const content = this.getValue("content");
-        const subcontent = this.getValue("subcontent");
+        const primary = this.getValue("primary");
+        const secondary = this.getValue("secondary");
         const picture = this.getValue("picture");
 
         const rtl = computeRTL(this.hass);
@@ -122,7 +123,7 @@ export class TemplateChip extends LitElement implements LovelaceChip {
                     hasDoubleClick: hasAction(this._config.double_tap_action),
                 })}
                 .avatar=${picture ? (this.hass as any).hassUrl(picture) : undefined}
-                .avatarOnly=${picture && !content && !subcontent}
+                .avatarOnly=${picture && !primary && !secondary}
             >
                 ${!picture
                     ? weatherSvg
@@ -131,9 +132,7 @@ export class TemplateChip extends LitElement implements LovelaceChip {
                         ? this.renderIcon(icon, iconColor)
                         : nothing
                     : nothing}
-                ${content ? this.renderContent(content) : nothing}
-                ${content && subcontent ? '<br>' : nothing}
-                ${subcontent ? this.renderSubContent(subcontent) : nothing}
+                ${primary || secondary ? this.renderContent(primary, secondary) : nothing}
             </mushroom-chip>
         `;
     }
@@ -147,12 +146,17 @@ export class TemplateChip extends LitElement implements LovelaceChip {
         return html`<ha-state-icon .icon=${icon} style=${styleMap(iconStyle)}></ha-state-icon>`;
     }
 
-    protected renderContent(content: string): TemplateResult {
-        return html`<span>${content}</span>`;
-    }
 
-    protected renderSubContent(subcontent: string): TemplateResult {
-        return html`<small>${subcontent}</small>`;
+    protected renderContent(primary: string, secondary: string): TemplateResult {
+        return html`
+            <span class=${classMap({
+                multiline: primary && secondary,
+            })}>
+                ${primary ? primary : nothing}
+                ${primary && secondary ? html`<br>` : nothing}
+                ${secondary ? html`<small>${secondary}</small>` : nothing}
+            </span>
+        `;
     }
 
     protected updated(changedProps: PropertyValues): void {
@@ -252,8 +256,14 @@ export class TemplateChip extends LitElement implements LovelaceChip {
             ha-state-icon {
                 color: var(--color);
             }
+            span.multiline {
+                line-height: 1.3;
+                padding-right: 5px;
+            }
             small {
                 opacity: 0.6;
+                font-size: 95%;
+                font-weight: normal;
             }
             ${weatherSVGStyles}
         `;

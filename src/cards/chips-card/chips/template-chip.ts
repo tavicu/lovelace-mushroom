@@ -257,7 +257,7 @@ export class TemplateChip extends LitElement implements LovelaceChip {
                 color: var(--color);
             }
             span.multiline {
-                line-height: 1.3;
+                line-height: 1.2;
                 padding-right: 5px;
             }
             small {

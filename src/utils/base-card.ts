@@ -35,6 +35,10 @@ export class MushroomBaseCard<
 > extends MushroomBaseElement {
     @state() protected _config?: T;
 
+    @property({ reflect: true, type: String })
+    public layout: string | undefined;
+
+    // For backward compatibility (version < 2024.7)
     @property({ attribute: "in-grid", reflect: true, type: Boolean })
     protected _inGrid = false;
 
@@ -149,7 +153,6 @@ export class MushroomBaseCard<
                 <ha-state-icon
                     .hass=${this.hass}
                     .stateObj=${stateObj}
-                    .state=${stateObj}
                     .icon=${icon}
                 ></ha-state-icon
             ></mushroom-shape-icon>
